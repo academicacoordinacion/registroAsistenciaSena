@@ -45,25 +45,46 @@ class EntradaSalidaController extends Controller
 
         return response()->json($registros, 200);
     }
+    public function preIndex()
+    {
+        return view('entradaSalidas.preIndex');
+    }
     public function registros(Request $request)
     {
-        $fichaCaracterizacion = $request->ficha_id;
-        $ambiente_id = $request->ambiente_id;
-
-        $ambiente = Ambiente::where('id', $ambiente_id)->first();
-        $descripcion = $request->descripcion;
-        $fecha = Carbon::now()->toDateString();
-        // @dd($ficha);
-        $ficha = FichaCaracterizacion::where('id', $fichaCaracterizacion)->first();
+        $ambiente = Ambiente::find($request->ambienteId);
+        $fichaCaracterizacion = FichaCaracterizacion::find($request->fichaCaracterizacionId);
+        $instructor = Auth::user()->persona->instructor->id;
+        // @dd($instructor);
         // Obtén todos los registros de entrada/salida del usuario actual
-        $registros = EntradaSalida::where('instructor_user_id', Auth::user()->id)
+        $registros = EntradaSalida::where('instructor_user_id', $instructor)
             ->where('fecha', Carbon::now()->toDateString())
-            ->where('ficha_caracterizacion_id', $fichaCaracterizacion)
-            ->where('listado', null)->get();
+            ->where('ficha_caracterizacion_id', $request->fichaCaracterizacionId)
+            ->where('listado', null)
+            ->get();
+        // $registros = EntradaSalida::all();
         // @dd($registros);
-        // Pasa los registros a la vista
-        return view('entradaSalidas.index', compact('registros', 'ficha', 'fecha', 'ambiente', 'descripcion'));
+
+        return view('entradaSalidas.index', ['registros' => $registros, 'fichaCaracterizacion' => $fichaCaracterizacion, 'ambiente' => $ambiente]);
     }
+    // public function registros(Request $request)
+    // {
+    //     $fichaCaracterizacion = $request->ficha_id;
+    //     $ambiente_id = $request->ambiente_id;
+
+    //     $ambiente = Ambiente::where('id', $ambiente_id)->first();
+    //     $descripcion = $request->descripcion;
+    //     $fecha = Carbon::now()->toDateString();
+    //     // @dd($ficha);
+    //     $ficha = FichaCaracterizacion::where('id', $fichaCaracterizacion)->first();
+    //     // Obtén todos los registros de entrada/salida del usuario actual
+    //     $registros = EntradaSalida::where('instructor_user_id', Auth::user()->id)
+    //         ->where('fecha', Carbon::now()->toDateString())
+    //         ->where('ficha_caracterizacion_id', $fichaCaracterizacion)
+    //         ->where('listado', null)->get();
+    //     // @dd($registros);
+    //     // Pasa los registros a la vista
+    //     return view('entradaSalidas.index', compact('registros', 'ficha', 'fecha', 'ambiente', 'descripcion'));
+    // }
     /**
      * Show the form for creating a new resource.
      */
@@ -115,7 +136,7 @@ class EntradaSalidaController extends Controller
             return response()->json(["error" => "Error al crear la entrada salida"], 500);
         }
     }
-    public function storeEntradaSalida($ficha_id, $aprendiz, $ambiente_id, $descripcion)
+    public function storeEntradaSalida($fichaCaracterizacionId, $aprendiz, $ambienteId)
     {
 
         // @dd('holis');
@@ -123,14 +144,15 @@ class EntradaSalidaController extends Controller
             // crear aprendiz
             $entradaSalida = EntradaSalida::create([
                 'fecha' => Carbon::now()->toDateString(),
-                'instructor_user_id' => Auth::user()->id,
+                'instructor_user_id' => Auth::user()->persona->instructor->id,
                 'aprendiz' => $aprendiz,
                 'entrada' => Carbon::now(),
-                'ficha_caracterizacion_id' => $ficha_id,
+                'ficha_caracterizacion_id' => $fichaCaracterizacionId,
+                'ambiente_id' => $ambienteId
             ]);
 
 
-            return redirect()->route('entradaSalida.registros', compact('ficha_id','ambiente_id', 'descripcion'))->with('success', '¡Registro Exitoso!');
+            return redirect()->route('entradaSalida.registros', compact('fichaCaracterizacionId', 'ambienteId'))->with('success', '¡Registro Exitoso!');
         } catch (QueryException $e) {
             // Manejar excepciones de la base de datos
             @dd($e);
@@ -138,6 +160,24 @@ class EntradaSalidaController extends Controller
         } catch (\Exception $e) {
             // Manejar otras excepciones
             @dd($e);
+            return redirect()->back()->withErrors(['error' => 'Se produjo un error. Por favor, inténtelo de nuevo.']);
+        }
+    }
+    public function listarAsistencia($fichaCaracterizacionId, $ambienteId)
+    {
+        try {
+            DB::beginTransaction();
+            DB::table('entrada_salidas')
+                ->where('instructor_user_id', Auth::user()->persona->instructor->id)
+                ->where('fecha', Carbon::now()->toDateString())
+                ->where('ficha_caracterizacion_id', $fichaCaracterizacionId)
+                ->where('ambiente_id', $ambienteId)
+                ->update(['listado' => 1]);
+            DB::commit();
+            return redirect()->route('entradaSalida.registros', compact('fichaCaracterizacionId', 'ambienteId'))->with('success', '¡Asistencia tomada con éxito!');
+
+            } catch (QueryException $e) {
+            DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Se produjo un error. Por favor, inténtelo de nuevo.']);
         }
     }
@@ -267,7 +307,7 @@ class EntradaSalidaController extends Controller
             return redirect()->back()->withErrors(['error' => 'Se produjo un error. Por favor, inténtelo de nuevo.']);
         }
     }
-    public function updateEntradaSalida($aprendiz)
+    public function updateEntradaSalida($fichaCaracterizacionId, $aprendiz, $ambienteId)
     {
         try {
             $entradaSalida = EntradaSalida::where('aprendiz', $aprendiz)
@@ -278,7 +318,7 @@ class EntradaSalidaController extends Controller
                 $entradaSalida->update([
                     'salida' => Carbon::now(),
                 ]);
-                return redirect()->route('entradaSalida.registros', ['fichaCaracterizacion' => $entradaSalida->ficha_caracterizacion_id])->with('success', 'Salida Exitosa');
+                return redirect()->route('entradaSalida.registros', compact('fichaCaracterizacionId', 'ambienteId'))->with('success', 'Salida Exitosa');
             } else {
                 return redirect()->back()->withErrors(['error' => 'No ha tomado asistencia a este aprendiz.']);
             }
@@ -401,15 +441,14 @@ class EntradaSalidaController extends Controller
             'ficha_id',
         ]);
         // @dd($request->ficha_caracterizacion_id);
-        $ficha_id = $request->ficha_id;
+        $fichaCaracterizacionId = $request->fichaCaracterizacionId;
         $evento = $request->evento;
-        $ambiente_id = $request->ambiente_id;
-        $descripcion = $request->descripcion;
+        $ambienteId = $request->ambienteId;
         if ($request->evento == 1) {
             // @dd('se supone que aqui vamos bien' . $request->evento);
-                return view('entradaSalidas.create', compact('ficha_id', 'evento', 'ambiente_id', 'descripcion'));
+            return view('entradaSalidas.create', compact('fichaCaracterizacionId', 'evento', 'ambienteId',));
         } else {
-            return view('entradaSalidas.edit', compact('ficha_id','evento', 'ambiente_id', 'descripcion'));
+            return view('entradaSalidas.edit', compact('fichaCaracterizacionId', 'evento', 'ambienteId',));
         }
     }
 }

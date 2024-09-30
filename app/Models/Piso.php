@@ -25,7 +25,7 @@ class Piso extends Model
     }
     public function ambientes()
     {
-        return $this->hasMany(Ambiente::class, 'piso_id');
+        return $this->hasMany(Ambiente::class);
     }
 
     public function userCreate()

@@ -11,9 +11,6 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="{{ route('verificarLogin') }}" >Inicio</a></li>
-
-
-                            {{-- <li class="breadcrumb-item active">Blank Page</li> --}}
                         </ol>
                     </div>
                 </div>
@@ -32,7 +29,7 @@
                         <hr class="my-4">
                         <p>Recuerda que primero dedes de ingresar la ficha de caracterización y luego escanear tomar la asistencia a la hora de entrada y de salida</p>
                         @role('INSTRUCTOR')
-                        <a class="btn btn-primary btn-lg" href="{{ route('fichaCaracterizacion.index') }}" role="button">Comencemos</a>
+                        <a class="btn btn-primary btn-lg" href="{{ route('entradaSalida.preIndex') }}" role="button">Comencemos</a>
                         @endrole
                     </div>
                 </div>

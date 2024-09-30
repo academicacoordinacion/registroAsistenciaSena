@@ -69,12 +69,11 @@ qrcode.callback = (respuesta) => {
     if (respuesta) {
         // console.log(respuesta);
         // Swal.fire(respuesta + "holis")
-        var ficha_id = document.getElementById(
-            "ficha_id"
+        var fichaCaracterizacionId = document.getElementById(
+            "fichaCaracterizacionId"
         ).value;
 
-        var ambiente_id = document.getElementById("ambiente_id").value;
-        var descripcion = document.getElementById("descripcion").value;
+        var ambienteId = document.getElementById("ambienteId").value;
         var evento = document.getElementById("evento").value;
 
         // Swal.fire(respuesta + ficha_caracerizacion_id)
@@ -82,13 +81,17 @@ qrcode.callback = (respuesta) => {
             // Swal.fire("nos vamos a crear el registro")
             window.location.href =
                 "crearEntradaSalida/" +
-                ficha_caracerizacion_id +
+                fichaCaracterizacionId +
                 "/" +
                 respuesta +
-                "/" + ambiente_id + "/" + descripcion
+                "/" + ambienteId + "/"
                 ;
         } else {
-            window.location.href = "editarEntradaSalida/" + respuesta;
+            window.location.href = "editarEntradaSalida/" + fichaCaracterizacionId +
+                "/" +
+                respuesta +
+                "/" + ambienteId + "/"
+                ;
         }
         // activarSonido();
         // encenderCamara();

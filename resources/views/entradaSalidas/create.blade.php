@@ -10,8 +10,8 @@
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Blank Page</li>
+                            <li class="breadcrumb-item"><a href="{{ route('verificarLogin') }}">Inicio</a></li>
+                            <li class="breadcrumb-item active">Tomar asistencia</li>
                         </ol>
                     </div>
                 </div>
@@ -29,14 +29,12 @@
                         Volver
                     </a>
                 </div>
-                <input type="hidden" value="{{ $ficha_id }}" name="ficha_id"
-                    id="ficha_id">
-                <input type="hidden" value="{{ $ambiente_id }}" name="ambiente_id"
-                    id="ambiente_id">
-                <input type="hidden" value="{{ $descripcion }}" name="descripcion"
-                    id="descripcion">
+                <input type="hidden" value="{{ $fichaCaracterizacionId }}" name="fichaCaracterizacionId"
+                    id="fichaCaracterizacionId">
+                <input type="hidden" value="{{ $ambienteId }}" name="ambienteId"
+                    id="ambienteId">
                 <input type="hidden" value="{{ $evento }}" name="evento" id="evento">
-                
+
                 <div class="row justify-content-center mt-5">
                     <div class="col-sm-4 shadow p-3">
                         <h5 class="text-center">Escanear codigo QR</h5>

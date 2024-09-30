@@ -53,18 +53,10 @@ Route::middleware('auth')->group(function () {
 
     //Rutas para instructores
     Route::resource('instructor', InstructorController::class);
-    route::middleware('can:CREAR INSTRUCTOR')->group(function(){
+    route::middleware('can:CREAR INSTRUCTOR')->group(function () {
         route::get('createImportarCSV', [InstructorController::class, 'createImportarCSV'])->name('instructor.createImportarCSV');
         route::post('storeImportarCSV', [InstructorController::class, 'storeImportarCSV'])->name('instructor.storeImportarCSV');
     });
-    // Rutas para entrada y salida
-    Route::resource('entradaSalida', EntradaSalidaController::class);
-    Route::get('cargarDatos', [EntradaSalidaController::class, 'cargarDatos'])->name('entradaSalida.cargarDatos')->middleware('cros');
-    Route::get('crearEntradaSalida/{ficha_id}/{aprendiz}/{ambiente_id}/{descripcion}', [EntradaSalidaController::class, 'storeEntradaSalida'])->name('entradaSalida.crearEntradaSalida');
-    Route::get('editarEntradaSalida/{aprendiz}/{ambiente_id}/{descripcion}', [EntradaSalidaController::class, 'updateEntradaSalida'])->name('entradaSalida.editarEntradaSalida');
-    Route::post('/registros', [EntradaSalidaController::class, 'registros'])->name('entradaSalida.registros');
-    Route::post('updateSalida', [EntradaSalidaController::class, 'updateSalida'])->name('entradaSalida.updateSalida');
-    Route::get('generarCSV/{ficha}', [EntradaSalidaController::class, 'generarCSV'])->name('entradaSalida.generarCSV');
 
 
     // Rutas oara fucha de caracterizacion
@@ -77,7 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('sede', SedeController::class);
     Route::get('/cargarSedesByMunicipio/{municipio_id}', [SedeController::class, 'cargarSedesByMunicipio'])->name('sede.cargarSedesByMunicipio');
     Route::get('/cargarSedesByRegional/{regional_id}', [SedeController::class, 'cargarSedesByRegional'])->name('sede.cargarSedesByRegional');
-    route::middleware('can:EDITAR SEDE')->group(function(){
+    route::middleware('can:EDITAR SEDE')->group(function () {
         Route::put('sedeUpdateStatus/{sede}', [SedeController::class, 'cambiarEstadoSede'])->name('sede.cambiarEstado');
     });
 
@@ -107,7 +99,7 @@ Route::middleware('auth')->group(function () {
 
     // rutas para parametros
     Route::resource('parametro', ParametroController::class);
-    route::middleware('can:EDITAR PARAMETRO')->group( function(){
+    route::middleware('can:EDITAR PARAMETRO')->group(function () {
 
         Route::put('/parametro/{parametro}/cambiar-estado', [ParametroController::class, 'cambiarEstado'])->name('parametro.cambiarEstado');
     });
@@ -115,7 +107,7 @@ Route::middleware('auth')->group(function () {
 
     // rutas para temas
     Route::resource('tema', TemaController::class);
-    route::middleware('can:EDITAR TEMA')->group(function(){
+    route::middleware('can:EDITAR TEMA')->group(function () {
 
         Route::put('/tema/{tema}/cambiar-estado', [TemaController::class, 'cambiarEstado'])->name('tema.cambiarEstado');
         Route::put('/tema/{parametro}/cambiar-estado-parametro', [TemaController::class, 'cambiarEstadoParametro'])->name('tema.cambiarEstadoParametro');
@@ -123,7 +115,7 @@ Route::middleware('auth')->group(function () {
     });
     // rutas para las regionales
     Route::resource('regional', RegionalController::class);
-    route::middleware('can:EDITAR REGIONAL')->group(function(){
+    route::middleware('can:EDITAR REGIONAL')->group(function () {
         Route::put('regionalUpdateStatus/{regional}', [RegionalController::class, 'cambiarEstadoRegional'])->name('regional.cambiarEstado');
     });
     // rutas para los permisos
@@ -139,6 +131,19 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cargardepartamentos', [DepartamentoController::class, 'cargardepartamentos'])->name('departamento.cargardepartamentos');
     Route::get('/cargarMunicipios/{departamento_id}', [MunicipioController::class, 'cargarMunicipios'])->name('municipio.cargarMunicipios');
+    route::middleware('can:TOMAR ASISTENCIA')->group(function () {
+        route::get('/entradaSalida/preIndex', [EntradaSalidaController::class, 'preIndex'])->name('entradaSalida.preIndex');
+        // Rutas para entrada y salida
+        Route::resource('entradaSalida', EntradaSalidaController::class);
+        Route::get('cargarDatos', [EntradaSalidaController::class, 'cargarDatos'])->name('entradaSalida.cargarDatos')->middleware('cros');
+        Route::get('crearEntradaSalida/{fichaCaracterizacionId}/{aprendiz}/{ambienteId}', [EntradaSalidaController::class, 'storeEntradaSalida'])->name('entradaSalida.crearEntradaSalida');
+        Route::get('editarEntradaSalida/{fichaCaracterizacionId}/{aprendiz}/{ambienteId}', [EntradaSalidaController::class, 'updateEntradaSalida'])->name('entradaSalida.editarEntradaSalida');
+        Route::get('listarAsistencia/{fichaCaracterizacionId}/{ambienteId}', [EntradaSalidaController::class, 'listarAsistencia'])->name('entradaSalida.listarAsistencia');
+        Route::get('/registros', [EntradaSalidaController::class, 'registros'])->name('entradaSalida.registros');
+        Route::post('updateSalida', [EntradaSalidaController::class, 'updateSalida'])->name('entradaSalida.updateSalida');
+        Route::get('generarCSV/{ficha}', [EntradaSalidaController::class, 'generarCSV'])->name('entradaSalida.generarCSV');
+    });
+    route::get('/equipoDesarrollo', [HomeController::class, 'equipoDesarrollo'])->name('home.equipoDesarrollo');
 });
 
 // rutas del controlador register
